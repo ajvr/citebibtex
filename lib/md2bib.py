@@ -79,21 +79,25 @@ def get_keys_from_document(filename):
     k_latex = '\\cite.?\[?(?:.+?)?\]?\{' + BIBKEY_PAT + '\}'
 
     text = open(filename, 'r', encoding='utf-8').read()
-    md = re.findall(k_md, text)
-    md_brackets, md_intext = list(zip(*md))
-    md_brackets, md_intext = list(md_brackets), list(md_intext)
-
     matches = []
-    # Split up finds if necessary to deal with [@key0; @key1]
-    for f in md_brackets:
-        if '@' in f:
-            sub_f = f.replace(' ', '').replace('@', '').split(';')
-            matches.extend(sub_f)
-        elif f != '':
-            matches.append(f)
+    
+    # Markdown
+    md = re.findall(k_md, text)
+    if md:
+        md_brackets, md_intext = list(zip(*md))
+        md_brackets, md_intext = list(md_brackets), list(md_intext)
 
-    matches.extend([i for i in md_intext if i != ''])
+        # Split up finds if necessary to deal with [@key0; @key1]
+        for f in md_brackets:
+            if '@' in f:
+                sub_f = f.replace(' ', '').replace('@', '').split(';')
+                matches.extend(sub_f)
+            elif f != '':
+                matches.append(f)
 
+        matches.extend([i for i in md_intext if i != ''])
+
+    # Latex
     latex = re.findall(k_latex, text)
     for f in latex:
         if ',' in f:
